@@ -14,7 +14,7 @@ def get_request(**kwargs):
         response = get(
             kwargs['uri'],
             headers=kwargs['headers'],
-            timeout=2
+            timeout=5
         )
 
         response.raise_for_status()
@@ -23,7 +23,7 @@ def get_request(**kwargs):
         print(f'Error -- URL:{response.url} code: {response.status_code}')
     except Exception as e:
         print(f'Error -- Request to {kwargs["uri"]} thrown exception:  {e}')
-        return UnavailableResponse()
+        raise e
     else:
         print(f'Success -- URL:{response.url} code: {response.status_code}')
 

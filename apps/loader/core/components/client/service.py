@@ -7,8 +7,6 @@ from apps.common.models.records import Record
 from apps.api import db
 import re
 
-MAX_WORKERS = 60
-
 
 class Service(BaseService):
     def setup(self, **kwargs):
@@ -20,7 +18,6 @@ class Service(BaseService):
         self.blocks = list()
 
         try:
-            self._pool = ThreadPoolExecutor(MAX_WORKERS)
             for service in self._services:
                 self._service = service
                 self._steps = service['steps']
@@ -37,16 +34,10 @@ class Service(BaseService):
                         }
                     )
 
-                    futures = [
-                        self._pool.submit(
-                            self._task1,
-                            record
-                        )
+                    self.temp_data = [
+                        self._task1(record)
                         for record in records
                     ]
-
-                    for future in as_completed(futures):
-                        self.temp_data.append(future.result())
 
                     # Save in db
                     self._save()
@@ -62,14 +53,15 @@ class Service(BaseService):
         print(self.blocks)
 
     def _task1(self, record):
-        futures = [
-            self._pool.submit(
-                self._task2,
-                record,
-                step
-            )
-            for step in self._steps
-        ]
+        with ThreadPoolExecutor() as pool:
+            futures = [
+                pool.submit(
+                    self._task2,
+                    record,
+                    step
+                )
+                for step in self._steps
+            ]
 
         for future in as_completed(futures):
             record.update(future.result())
