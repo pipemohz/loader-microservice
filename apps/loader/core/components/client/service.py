@@ -1,5 +1,4 @@
 from apps.common.service import BaseService
-# from apps.loader.core.components.client.exceptions import InvalidColumnName
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from apps.common.requests import get_request
 from config.environment import MULTIGET_MAX_ITEMS

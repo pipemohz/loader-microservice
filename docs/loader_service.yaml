@@ -1,0 +1,130 @@
+openapi: 3.0.0
+info:
+  title: File loader microservice
+  description: It's a microservice that exposes an endpoint to read a file, query a series of MercadoLibre public APIs and upload the records to a database. It's based on the Python Flask framework and uses a database with the Postgres engine. 
+  version: '1.0'
+paths:
+  '/api/v1/on_demand':
+    post:
+      tags:
+        - General Service
+      summary: Runs a new file processing on demand
+      description: From an input file, it executes the processing of the data and the triggering of HTTP requests to a set of Mercadolibre APIs for each record in the file. Finally, the extracted data is stored in a database.
+      operationId: api_v1_on_demand__post
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                format:
+                  type: string
+                encoding:
+                  type: string
+                  example: utf8
+                separator:
+                  type: string
+      responses:
+        '200':
+          description: Process execution successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Success
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPBadRequestResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPServerErrorResponse'
+          
+  /:
+    get:
+      tags:
+        - Meta
+      summary: Microservice index
+      description: Gets the name of microservice
+      operationId: microservice_index__get
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: File loader service
+  /health:
+    get:
+      tags:
+        - Meta
+      summary: Checks microservice health
+      description: Check microservice health
+      operationId: check_microservice_healt__get
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: ok
+tags:
+  - name: General Service
+    description: 'A sevice offered by the API that use multiple models to return a response to the user request.'
+  - name: Meta
+    description: 'Related to the general status of the microservice.'
+components:
+  schemas:     
+    HTTPBadRequestResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Encoding format is invalid
+          description: 'Object with error detail.'
+    HTTPServerErrorResponse:
+      type: object
+      properties:
+        internal_error:
+          type: string
+          example: An error has ocurred, contact system administrator
+          description: 'Object with a brief description of error event.'
+        description:
+          type: string
+          example: An error has ocurred in reader module
+          description: 'Object with error detail.'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
